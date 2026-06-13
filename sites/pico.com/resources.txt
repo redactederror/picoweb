@@ -1,2 +1,1 @@
 script "script.lua"
-text 20 60 "Welcome to PicoWeb!" 11
