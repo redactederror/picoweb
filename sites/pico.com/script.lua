@@ -321,7 +321,7 @@ function _draw_site()
 print(
     "Welcome to PicoWeb",
     320,
-    30,
+    15,
     11
 )
 
