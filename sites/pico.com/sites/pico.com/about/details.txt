@@ -1,3 +1,0 @@
-title About PicoWeb
-height 200
-background 1
