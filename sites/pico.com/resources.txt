@@ -1,5 +1,5 @@
-text 20 20 "Welcome to PicoWeb!" 11
+image 20 20 "logo.png"
 
-text 20 35 "The internet for Picotron." 7
+text 20 60 "Welcome to PicoWeb!" 11
 
-button 20 60 "About PicoWeb" 12 "pww.pico.com/about"
+button 20 90 "About PicoWeb" 12 "pww.pico.com/about"
