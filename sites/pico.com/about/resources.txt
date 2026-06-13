@@ -1,0 +1,13 @@
+text 20 20 "About PicoWeb" 11
+
+text 20 40 "PicoWeb is a community-driven web" 7
+
+text 20 50 "browser for Picotron." 7
+
+text 20 70 "Websites are hosted on GitHub" 7
+
+text 20 80 "and fetched directly by the browser." 7
+
+downloadbutton 20 105 "Download Test File" 10 "testfile.txt"
+
+button 20 125 "Back to Home" 12 "pww.pico.com"
