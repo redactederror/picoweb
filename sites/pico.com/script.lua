@@ -12,7 +12,18 @@ move_delay = 0.12
 game_over = false
 
 --------------------------------------------------
--- INIT
+-- FOOD
+--------------------------------------------------
+
+function spawn_food()
+
+    food.x = flr(rnd(50)) + 5
+    food.y = flr(rnd(25)) + 15
+
+end
+
+--------------------------------------------------
+-- SITE INIT
 --------------------------------------------------
 
 function _init_site()
@@ -23,18 +34,14 @@ function _init_site()
         {x=28,y=30}
     }
 
+    dir_x = 1
+    dir_y = 0
+
+    move_timer = 0
+
+    game_over = false
+
     spawn_food()
-
-end
-
---------------------------------------------------
--- FOOD
---------------------------------------------------
-
-function spawn_food()
-
-    food.x = flr(rnd(60)) + 2
-    food.y = flr(rnd(40)) + 8
 
 end
 
@@ -67,7 +74,7 @@ function handle_input()
 end
 
 --------------------------------------------------
--- MOVE
+-- MOVE SNAKE
 --------------------------------------------------
 
 function move_snake()
@@ -80,7 +87,7 @@ function move_snake()
     -- walls
 
     if nx < 0 or nx > 63
-    or ny < 8 or ny > 63 then
+    or ny < 12 or ny > 63 then
 
         game_over = true
         return
@@ -89,10 +96,10 @@ function move_snake()
 
     -- self collision
 
-    for segment in all(snake) do
+    for seg in all(snake) do
 
-        if segment.x == nx
-        and segment.y == ny then
+        if seg.x == nx
+        and seg.y == ny then
 
             game_over = true
             return
@@ -110,7 +117,7 @@ function move_snake()
         1
     )
 
-    -- eat food
+    -- food
 
     if nx == food.x
     and ny == food.y then
@@ -129,7 +136,7 @@ function move_snake()
 end
 
 --------------------------------------------------
--- UPDATE
+-- SITE UPDATE
 --------------------------------------------------
 
 function _update_site()
@@ -138,9 +145,6 @@ function _update_site()
 
         if btnp(4) then
             _init_site()
-            game_over = false
-            dir_x = 1
-            dir_y = 0
         end
 
         return
@@ -162,7 +166,7 @@ function _update_site()
 end
 
 --------------------------------------------------
--- DRAW
+-- SITE DRAW
 --------------------------------------------------
 
 function _draw_site()
@@ -176,6 +180,13 @@ function _draw_site()
         11
     )
 
+    print(
+        "Length: "..#snake,
+        2,
+        9,
+        7
+    )
+
     -- food
 
     pset(
@@ -186,36 +197,29 @@ function _draw_site()
 
     -- snake
 
-    for segment in all(snake) do
+    for seg in all(snake) do
 
         pset(
-            segment.x,
-            segment.y,
+            seg.x,
+            seg.y,
             11
         )
 
     end
 
-    print(
-        "Length: "..#snake,
-        2,
-        70,
-        7
-    )
-
     if game_over then
 
         print(
             "GAME OVER",
-            18,
-            35,
+            20,
+            30,
             8
         )
 
         print(
-            "Press X",
+            "PRESS X",
             20,
-            45,
+            40,
             7
         )
 
