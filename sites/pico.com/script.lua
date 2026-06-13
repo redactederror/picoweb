@@ -314,6 +314,65 @@ function _draw_site()
         playfield_y,
         7
     )
+    --------------------------------------------------
+-- WELCOME PANEL
+--------------------------------------------------
+
+print(
+    "Welcome to PicoWeb",
+    320,
+    30,
+    11
+)
+
+print(
+    "Type a website",
+    320,
+    50,
+    7
+)
+
+print(
+    "into the address",
+    320,
+    60,
+    7
+)
+
+print(
+    "bar above to",
+    320,
+    70,
+    7
+)
+
+print(
+    "begin browsing.",
+    320,
+    80,
+    7
+)
+
+print(
+    "This Snake game",
+    320,
+    110,
+    6
+)
+
+print(
+    "is hosted as a",
+    320,
+    120,
+    6
+)
+
+print(
+    "PicoWeb website.",
+    320,
+    130,
+    6
+)
 
     --------------------------------------------------
     -- FOOD
