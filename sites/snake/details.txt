@@ -1,0 +1,3 @@
+title Snake
+height 300
+background 1
