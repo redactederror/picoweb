@@ -1,7 +1,5 @@
-text 20 20 "Welcome to PicoWeb Explorer!" 11
+text 20 20 "Welcome to PicoWeb!" 11
 
-text 20 35 "This is the first PicoWideWeb test site." 7
+text 20 35 "The internet for Picotron." 7
 
-text 20 50 "Currently hosted on GitHub." 7
-
-button 20 80 "About PicoWeb" 12 "pww.pico.com/about"
+button 20 60 "About PicoWeb" 12 "pww.pico.com/about"
