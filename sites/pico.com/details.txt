@@ -1,2 +1,3 @@
 title PicoWeb
 height 300
+background 1
