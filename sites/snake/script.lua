@@ -1,187 +1,386 @@
--- script.lua
+local snake = {}
+local food = {}
 
-tile_size = 8
-playfield_y = 24
+local direction = 1
+local next_direction = 1
 
-snake = {}
-food = {}
+local timer = 0
+local speed = 0.09
 
-dir_x = 1
-dir_y = 0
+local board_x = 8
+local board_y = 36
+local board_w = 384
+local board_h = 156
 
-next_dir_x = 1
-next_dir_y = 0
+local cell = 8
+local cols = flr(board_w / cell)
+local rows = flr(board_h / cell)
 
-move_timer = 0
-move_delay = 0.15
+local alive = true
+local restart_timer = 0
 
-score = 0
-game_over = false
+local function make_sprites()
 
-grid_w = 38
-grid_h = 20
-
-function snake_contains(x,y)
-    for s in all(snake) do
-        if s.x == x and s.y == y then
-            return true
+    for y = 0,7 do
+        for x = 0,7 do
+            sset(0 * 8 + x,16 * 8 + y,0)
+            sset(1 * 8 + x,16 * 8 + y,0)
+            sset(2 * 8 + x,16 * 8 + y,0)
         end
     end
-    return false
+
+    for y = 1,6 do
+        for x = 1,6 do
+            sset(x,128 + y,11)
+        end
+    end
+
+    for y = 2,5 do
+        for x = 2,5 do
+            sset(x,128 + y,12)
+        end
+    end
+
+    sset(1,129,7)
+    sset(6,129,7)
+
+    for y = 1,6 do
+        for x = 1,6 do
+            sset(8 + x,128 + y,11)
+        end
+    end
+
+    for y = 2,5 do
+        for x = 2,5 do
+            sset(8 + x,128 + y,3)
+        end
+    end
+
+    for y = 1,6 do
+        for x = 1,6 do
+            sset(16 + x,128 + y,8)
+        end
+    end
+
+    for y = 2,5 do
+        for x = 2,5 do
+            sset(16 + x,128 + y,9)
+        end
+    end
+
+    sset(18,130,10)
+    sset(21,130,10)
+    sset(19,129,10)
+    sset(20,129,10)
+    sset(19,132,10)
+    sset(20,132,10)
+
 end
 
-function spawn_food()
-    repeat
-        food.x = flr(rnd(grid_w))
-        food.y = flr(rnd(grid_h))
-    until not snake_contains(food.x,food.y)
+local function opposite(a,b)
+
+    if a == 0 and b == 2 then
+        return true
+    end
+
+    if a == 2 and b == 0 then
+        return true
+    end
+
+    if a == 1 and b == 3 then
+        return true
+    end
+
+    if a == 3 and b == 1 then
+        return true
+    end
+
+    return false
+
+end
+
+local function place_food()
+
+    local valid = false
+
+    while not valid do
+
+        food.x = flr(rnd(cols))
+        food.y = flr(rnd(rows))
+
+        valid = true
+
+        for part in all(snake) do
+
+            if part.x == food.x
+            and part.y == food.y then
+
+                valid = false
+
+            end
+
+        end
+
+    end
+
+end
+
+local function reset_game()
+
+    snake = {}
+
+    local start_x = flr(cols / 2)
+    local start_y = flr(rows / 2)
+
+    add(
+        snake,
+        {
+            x = start_x,
+            y = start_y
+        }
+    )
+
+    add(
+        snake,
+        {
+            x = start_x - 1,
+            y = start_y
+        }
+    )
+
+    add(
+        snake,
+        {
+            x = start_x - 2,
+            y = start_y
+        }
+    )
+
+    direction = 1
+    next_direction = 1
+
+    timer = 0
+    alive = true
+
+    place_food()
+
+end
+
+local function die()
+
+    alive = false
+    restart_timer = 0.35
+
+    sfx(1)
+
+end
+
+local function move_snake()
+
+    if opposite(
+        direction,
+        next_direction
+    ) then
+
+        next_direction = direction
+
+    end
+
+    direction = next_direction
+
+    local head = snake[1]
+
+    local new_head = {
+        x = head.x,
+        y = head.y
+    }
+
+    if direction == 0 then
+        new_head.y -= 1
+    elseif direction == 1 then
+        new_head.x += 1
+    elseif direction == 2 then
+        new_head.y += 1
+    elseif direction == 3 then
+        new_head.x -= 1
+    end
+
+    if new_head.x < 0
+    or new_head.x >= cols
+    or new_head.y < 0
+    or new_head.y >= rows then
+
+        die()
+
+        return
+
+    end
+
+    for part in all(snake) do
+
+        if new_head.x == part.x
+        and new_head.y == part.y then
+
+            die()
+
+            return
+
+        end
+
+    end
+
+    add(
+        snake,
+        new_head,
+        1
+    )
+
+    if new_head.x == food.x
+    and new_head.y == food.y then
+
+        sfx(0)
+
+        place_food()
+
+    else
+
+        deli(
+            snake,
+            #snake
+        )
+
+    end
+
 end
 
 function _init_site()
 
-    local cx = flr(grid_w/2)
-    local cy = flr(grid_h/2)
+    make_sprites()
 
-    snake = {
-        {x=cx,y=cy},
-        {x=cx-1,y=cy},
-        {x=cx-2,y=cy}
-    }
+    reset_game()
 
-    dir_x = 1
-    dir_y = 0
-
-    next_dir_x = 1
-    next_dir_y = 0
-
-    move_timer = 0
-    move_delay = 0.15
-
-    score = 0
-    game_over = false
-
-    spawn_food()
-end
-
-function handle_input()
-
-    if btnp(0) and dir_x ~= 1 then
-        next_dir_x = -1
-        next_dir_y = 0
-
-    elseif btnp(1) and dir_x ~= -1 then
-        next_dir_x = 1
-        next_dir_y = 0
-
-    elseif btnp(2) and dir_y ~= 1 then
-        next_dir_x = 0
-        next_dir_y = -1
-
-    elseif btnp(3) and dir_y ~= -1 then
-        next_dir_x = 0
-        next_dir_y = 1
-    end
-end
-
-function move_snake()
-
-    dir_x = next_dir_x
-    dir_y = next_dir_y
-
-    local head = snake[1]
-
-    local nx = head.x + dir_x
-    local ny = head.y + dir_y
-
-    if nx < 0 or nx >= grid_w
-    or ny < 0 or ny >= grid_h then
-        game_over = true
-        return
-    end
-
-    for seg in all(snake) do
-        if seg.x == nx and seg.y == ny then
-            game_over = true
-            return
-        end
-    end
-
-    add(snake,{x=nx,y=ny},1)
-
-    if nx == food.x and ny == food.y then
-        score += 1
-        spawn_food()
-        move_delay = max(0.05,move_delay-0.005)
-    else
-        deli(snake,#snake)
-    end
 end
 
 function _update_site()
 
-    if game_over then
-        if btnp(4) then
-            _init_site()
+    if btnp(0)
+    and direction ~= 1 then
+
+        next_direction = 3
+
+    end
+
+    if btnp(1)
+    and direction ~= 3 then
+
+        next_direction = 1
+
+    end
+
+    if btnp(2)
+    and direction ~= 2 then
+
+        next_direction = 0
+
+    end
+
+    if btnp(3)
+    and direction ~= 0 then
+
+        next_direction = 2
+
+    end
+
+    if not alive then
+
+        restart_timer -= 1 / 60
+
+        if restart_timer <= 0 then
+            reset_game()
         end
+
         return
+
     end
 
-    handle_input()
+    timer += 1 / 60
 
-    move_timer += 1/60
+    if timer >= speed then
 
-    if move_timer >= move_delay then
-        move_timer = 0
+        timer -= speed
+
         move_snake()
+
     end
-end
 
-function draw_tile(gx,gy,col)
-
-    local px = gx * tile_size
-    local py = playfield_y + gy * tile_size
-
-    rectfill(
-        px,
-        py,
-        px+tile_size-1,
-        py+tile_size-1,
-        col
-    )
 end
 
 function _draw_site()
 
-    cls(1)
+    rectfill(
+        0,
+        28,
+        399,
+        199,
+        0
+    )
 
-    print("PicoSnake",4,4,11)
-    print("Score: "..score,90,4,7)
+    rect(
+        board_x - 1,
+        board_y - 1,
+        board_x + board_w,
+        board_y + board_h,
+        5
+    )
 
-    print("Click the address bar above",320,20,10)
-    print("to visit other PicoWeb sites.",320,32,7)
-    print("This page is a playable",320,56,6)
-    print("PicoWeb website demo.",320,68,6)
+    local food_x =
+        board_x
+        +
+        food.x * cell
 
-    draw_tile(food.x,food.y,8)
+    local food_y =
+        board_y
+        +
+        food.y * cell
 
-    for i=1,#snake do
-        local seg = snake[i]
+    spr(
+        130,
+        food_x,
+        food_y
+    )
+
+    for i = #snake,1,-1 do
+
+        local part = snake[i]
+
+        local x =
+            board_x
+            +
+            part.x * cell
+
+        local y =
+            board_y
+            +
+            part.y * cell
 
         if i == 1 then
-            draw_tile(seg.x,seg.y,11)
+
+            spr(
+                128,
+                x,
+                y
+            )
+
         else
-            draw_tile(seg.x,seg.y,10)
+
+            spr(
+                129,
+                x,
+                y
+            )
+
         end
+
     end
 
-    if game_over then
-
-        rectfill(120,70,280,120,0)
-        rect(120,70,280,120,8)
-
-        print("GAME OVER",165,85,8)
-        print("PRESS X TO RESTART",130,100,7)
-    end
 end
-
-_init_site()
