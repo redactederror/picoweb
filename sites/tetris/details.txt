@@ -1,0 +1,3 @@
+title Tetris
+height 300
+background 1
