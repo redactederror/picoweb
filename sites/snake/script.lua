@@ -133,23 +133,12 @@ function _draw_site()
     local fy=food.y*cell
 
     rectfill(
-        fx+2,
-        fy,
-        fx+5,
-        fy+7,
+        fx+1,
+        fy+1,
+        fx+6,
+        fy+6,
         8
     )
-
-    rectfill(
-        fx,
-        fy+2,
-        fx+7,
-        fy+5,
-        8
-    )
-
-    pset(fx+3,fy+3,7)
-    pset(fx+4,fy+3,7)
 
     for i=#snake,1,-1 do
 
