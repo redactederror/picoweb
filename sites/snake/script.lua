@@ -7,75 +7,12 @@ local next_direction = 1
 local timer = 0
 local speed = 0.09
 
-local board_x = 8
-local board_y = 36
-local board_w = 384
-local board_h = 156
-
 local cell = 8
-local cols = flr(board_w / cell)
-local rows = flr(board_h / cell)
+local cols = 50
+local rows = 21
 
 local alive = true
 local restart_timer = 0
-
-local function make_sprites()
-
-    for y = 0,7 do
-        for x = 0,7 do
-            sset(0 * 8 + x,16 * 8 + y,0)
-            sset(1 * 8 + x,16 * 8 + y,0)
-            sset(2 * 8 + x,16 * 8 + y,0)
-        end
-    end
-
-    for y = 1,6 do
-        for x = 1,6 do
-            sset(x,128 + y,11)
-        end
-    end
-
-    for y = 2,5 do
-        for x = 2,5 do
-            sset(x,128 + y,12)
-        end
-    end
-
-    sset(1,129,7)
-    sset(6,129,7)
-
-    for y = 1,6 do
-        for x = 1,6 do
-            sset(8 + x,128 + y,11)
-        end
-    end
-
-    for y = 2,5 do
-        for x = 2,5 do
-            sset(8 + x,128 + y,3)
-        end
-    end
-
-    for y = 1,6 do
-        for x = 1,6 do
-            sset(16 + x,128 + y,8)
-        end
-    end
-
-    for y = 2,5 do
-        for x = 2,5 do
-            sset(16 + x,128 + y,9)
-        end
-    end
-
-    sset(18,130,10)
-    sset(21,130,10)
-    sset(19,129,10)
-    sset(20,129,10)
-    sset(19,132,10)
-    sset(20,132,10)
-
-end
 
 local function opposite(a,b)
 
@@ -116,6 +53,8 @@ local function place_food()
             and part.y == food.y then
 
                 valid = false
+
+                break
 
             end
 
@@ -158,7 +97,6 @@ local function reset_game()
 
     direction = 1
     next_direction = 1
-
     timer = 0
     alive = true
 
@@ -171,20 +109,9 @@ local function die()
     alive = false
     restart_timer = 0.35
 
-    sfx(1)
-
 end
 
 local function move_snake()
-
-    if opposite(
-        direction,
-        next_direction
-    ) then
-
-        next_direction = direction
-
-    end
 
     direction = next_direction
 
@@ -196,13 +123,21 @@ local function move_snake()
     }
 
     if direction == 0 then
+
         new_head.y -= 1
+
     elseif direction == 1 then
+
         new_head.x += 1
+
     elseif direction == 2 then
+
         new_head.y += 1
+
     elseif direction == 3 then
+
         new_head.x -= 1
+
     end
 
     if new_head.x < 0
@@ -231,14 +166,11 @@ local function move_snake()
 
     add(
         snake,
-        new_head,
-        1
+        new_head
     )
 
     if new_head.x == food.x
     and new_head.y == food.y then
-
-        sfx(0)
 
         place_food()
 
@@ -246,7 +178,7 @@ local function move_snake()
 
         deli(
             snake,
-            #snake
+            1
         )
 
     end
@@ -254,8 +186,6 @@ local function move_snake()
 end
 
 function _init_site()
-
-    make_sprites()
 
     reset_game()
 
@@ -296,7 +226,9 @@ function _update_site()
         restart_timer -= 1 / 60
 
         if restart_timer <= 0 then
+
             reset_game()
+
         end
 
         return
@@ -315,71 +247,109 @@ function _update_site()
 
 end
 
-function _draw_site()
+local function draw_food(x,y)
 
     rectfill(
-        0,
-        28,
-        399,
-        199,
-        0
+        x + 2,
+        y,
+        x + 5,
+        y + 1,
+        8
+    )
+
+    rectfill(
+        x + 1,
+        y + 2,
+        x + 6,
+        y + 5,
+        8
+    )
+
+    rectfill(
+        x + 2,
+        y + 6,
+        x + 5,
+        y + 7,
+        8
+    )
+
+    pset(x + 3,y + 3,10)
+    pset(x + 4,y + 3,10)
+
+end
+
+local function draw_head(x,y)
+
+    rectfill(
+        x + 1,
+        y + 1,
+        x + 6,
+        y + 6,
+        11
     )
 
     rect(
-        board_x - 1,
-        board_y - 1,
-        board_x + board_w,
-        board_y + board_h,
-        5
+        x + 1,
+        y + 1,
+        x + 6,
+        y + 6,
+        3
     )
 
-    local food_x =
-        board_x
-        +
-        food.x * cell
+    pset(x + 2,y + 2,7)
+    pset(x + 5,y + 2,7)
 
-    local food_y =
-        board_y
-        +
-        food.y * cell
+end
 
-    spr(
-        130,
+local function draw_body(x,y)
+
+    rectfill(
+        x + 1,
+        y + 1,
+        x + 6,
+        y + 6,
+        11
+    )
+
+    rect(
+        x + 1,
+        y + 1,
+        x + 6,
+        y + 6,
+        3
+    )
+
+end
+
+function _draw_site()
+
+    cls(0)
+
+    local food_x = food.x * cell
+    local food_y = food.y * cell
+
+    draw_food(
         food_x,
         food_y
     )
 
-    for i = #snake,1,-1 do
+    for i = #snake,2,-1 do
 
         local part = snake[i]
 
-        local x =
-            board_x
-            +
-            part.x * cell
-
-        local y =
-            board_y
-            +
+        draw_body(
+            part.x * cell,
             part.y * cell
+        )
 
-        if i == 1 then
+    end
 
-            spr(
-                128,
-                x,
-                y
-            )
+    if snake[1] then
 
-        else
-
-            spr(
-                129,
-                x,
-                y
-            )
-
-        end
+        draw_head(
+            snake[1].x * cell,
+            snake[1].y * cell
+        )
 
     end
 
