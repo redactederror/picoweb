@@ -37,7 +37,15 @@ shapes={
     }
 }
 
-colors={11,10,9,8,12,14,13}
+colors={
+    12,
+    10,
+    13,
+    11,
+    8,
+    9,
+    14
+}
 
 function copy_shape(shape)
 
